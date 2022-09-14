@@ -1,0 +1,37 @@
+{
+  "name": "davidxu/yii2-wangEditor",
+  "description": "wangEditor for Yii2 framework",
+  "type": "yii2-extension",
+  "minimum-stability": "dev",
+  "keywords": [
+    "yii2 extension",
+    "yii2 widget",
+    "wangEditor",
+    "yii",
+    "yii2",
+    "yii 2"
+  ],
+  "require": {
+    "php": ">=8.0",
+    "davidxu/yii2-base": "^1.0"
+  },
+  "suggest": {
+    "npm-asset/qiniu-js": "^3.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^4.0"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "David Xu",
+      "email": "david.xu.uts@163.com",
+      "role": "Developer"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "davidxu\\weditor\\": "src"
+    }
+  }
+}
