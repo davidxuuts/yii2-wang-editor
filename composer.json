@@ -1,8 +1,8 @@
 {
   "name": "davidxu/yii2-wang-editor",
-  "description": "wangEditor for Yii2 framework",
+  "description": "a wangEditor for Yii2 framework",
   "type": "yii2-extension",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "keywords": [
     "yii2 extension",
     "yii2 widget",

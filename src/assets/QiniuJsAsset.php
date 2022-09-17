@@ -1,6 +1,6 @@
 <?php
 
-namespace davidxu\summernote\assets;
+namespace davidxu\weditor\assets;
 
 use davidxu\base\assets\BaseAppAsset;
 use yii\web\AssetBundle;

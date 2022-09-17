@@ -2,19 +2,16 @@
 
 namespace davidxu\weditor\assets;
 
-use davidxu\base\assets\BaseAppAsset;
 use yii\web\AssetBundle;
 use Yii;
 
-class EditorAsset extends AssetBundle
+class EditorPluginLinkCardAsset extends AssetBundle
 {
-    public $sourcePath = '@davidxu/weditor/dist/';
+    public $sourcePath = '@davidxu/weditor/dist/plugins/';
     public $css = [
-        'css/style.css',
-        'css/editor.scss',
     ];
     public $js = [
-        'index.js',
+        'plugin-link-card/index.js',
     ];
     public function init()
     {
@@ -25,6 +22,6 @@ class EditorAsset extends AssetBundle
      * @var array
      */
     public $depends = [
-        BaseAppAsset::class,
+        EditorAsset::class,
     ];
 }
