@@ -70,21 +70,21 @@ class Editor extends InputWidget
 //            $this->clientOptions['lang'] = substr(Yii::$app->language, 0, 2);
         }
         $this->registerAssets($_view);
-//
-//        if ($this->drive === UploadTypeEnum::DRIVE_QINIU) {
-//            $this->metaData = ArrayHelper::merge([
-//                'x:store_in_db' => (string)$this->storeInDB,
-//                'x:member_id' => Yii::$app->user->isGuest ? '0' : (string)(Yii::$app->user->id),
-//                'x:upload_ip' => (string)(Yii::$app->request->remoteIP),
-//            ], $this->metaData);
-//        }
-//        if ($this->drive === UploadTypeEnum::DRIVE_LOCAL) {
-//            $this->metaData['file_field'] = $this->name;
-//            $this->metaData['store_in_db'] = $this->storeInDB;
-//            if (Yii::$app->request->enableCsrfValidation) {
-//                $this->metaData[Yii::$app->request->csrfParam] = Yii::$app->request->getCsrfToken();
-//            }
-//        }
+
+        if ($this->drive === UploadTypeEnum::DRIVE_QINIU) {
+            $this->metaData = ArrayHelper::merge([
+                'x:store_in_db' => (string)$this->storeInDB,
+                'x:member_id' => Yii::$app->user->isGuest ? '0' : (string)(Yii::$app->user->id),
+                'x:upload_ip' => (string)(Yii::$app->request->remoteIP),
+            ], $this->metaData);
+        }
+        if ($this->drive === UploadTypeEnum::DRIVE_LOCAL) {
+            $this->metaData['file_field'] = $this->name;
+            $this->metaData['store_in_db'] = $this->storeInDB;
+            if (Yii::$app->request->enableCsrfValidation) {
+                $this->metaData[Yii::$app->request->csrfParam] = Yii::$app->request->getCsrfToken();
+            }
+        }
         $this->_encodedMetaData = Json::encode($this->metaData);
         $customUploadJs = /** @lang JavaScript */ <<< CUSTOM_UPLOAD_JS
 ({
@@ -261,20 +261,19 @@ EDITOR_TOOLBAR_CREATOR;
     {
         $additinal = [];
         if ($this->secondUpload) {
-//            $additinal[] = /** @lang JavaScript */ <<< CALCULATE_FILE_HASH
-//const getHash = function (file) {
-//    return new Promise(function(resolve, reject) {
-//        let hash = ''
-//        let reader = new FileReader()
-//        reader.readAsArrayBuffer(file)
-//        reader.onload = () => {
-//            hash = getEtag(reader.result)
-//            resolve(hash)
-//        }
-//    })
-//}
-//CALCULATE_FILE_HASH;
-
+            $additinal[] = /** @lang JavaScript */ <<< CALCULATE_FILE_HASH
+const getHash = function (file) {
+    return new Promise(function(resolve, reject) {
+        let hash = ''
+        let reader = new FileReader()
+        reader.readAsArrayBuffer(file)
+        reader.onload = () => {
+            hash = getEtag(reader.result)
+            resolve(hash)
+        }
+    })
+}
+CALCULATE_FILE_HASH;
             $additinal[] = /** @lang JavaScript */ <<< GET_INFO_BY_HASH
 function secondUploadFile(file, insertFile) {
     const promise = new Promise(resolve => {
@@ -313,33 +312,45 @@ return promise
 GET_INFO_BY_HASH;
         }
 
-//        $additinal[] = /** @lang JavaScript */ <<< COMMON_JS
-//
-//sweetAlertToast = Swal.mixin({
-//    showConfirmButton: false,
-//    backdrop: `rgba(0, 0, 0, 0.8)`,
-//    title: '<i class="fas fa-spinner fa-pulse"></i>',
-//})
-//function progressBody(percent, progress_class) {
-//    if (progress_class === '' || progress_class === null || typeof progress_class === 'undefined') {
-//        progress_class = 'progress-bar-animated progress-bar-striped bg-info'
-//    }
-//    return [
-//        '<div class="progress">',
-//        '<div class="progress-bar ',
-//        progress_class,
-//        ' " ',
-//        'role="progressbar" aria-valuenow="',
-//        percent,
-//        '" aria-valuemin="0" aria-valuemax="100" style="width: ' ,
-//        percent,
-//        '%"> ',
-//        percent,
-//        '% </div>',
-//        '</div>',
-//    ].join('')
-//}
-//COMMON_JS;
+        $additinal[] = /** @lang JavaScript */ <<< COMMON_JS
+
+sweetAlertToast = Swal.mixin({
+    showConfirmButton: false,
+    backdrop: `rgba(0, 0, 0, 0.8)`,
+    title: '<i class="fas fa-spinner fa-pulse"></i>',
+})
+
+function generateKey(length) {
+    length = length || 32;
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_';
+    let maxPos = chars.length;
+    let str = ''
+    for (i = 0; i < length; i++) {
+        str += chars.charAt(Math.floor(Math.random() * maxPos));
+    }
+    return str
+}
+
+function progressBody(percent, progress_class) {
+    if (progress_class === '' || progress_class === null || typeof progress_class === 'undefined') {
+        progress_class = 'progress-bar-animated progress-bar-striped bg-info'
+    }
+    return [
+        '<div class="progress">',
+        '<div class="progress-bar ',
+        progress_class,
+        ' " ',
+        'role="progressbar" aria-valuenow="',
+        percent,
+        '" aria-valuemin="0" aria-valuemax="100" style="width: ' ,
+        percent,
+        '%"> ',
+        percent,
+        '% </div>',
+        '</div>',
+    ].join('')
+}
+COMMON_JS;
 
         $additinal[] = /** @lang JavaScript */ <<< HANDLE_UPLOAD_DRIVE
 function handleUploadDrive(file, insertFile) {
@@ -359,29 +370,29 @@ function handleUploadDrive(file, insertFile) {
 }
 HANDLE_UPLOAD_DRIVE;
 
-//        $additinal[] = /** @lang JavaScript */ <<< GET_FILE_INFO
-//function getFileInfo(file) {
-//    const mimeType = (file.type.split('/', 1)[0]).toLowerCase()
-//    let fileType = 'others'
-//    if (mimeType === 'image') {
-//        fileType = 'images'
-//    } else if (mimeType === 'video') {
-//        fileType = 'videos'
-//    } else if (mimeType === 'audio') {
-//        fileType = 'audios'
-//    }
-//    const extension = (file.name.substr(file.name.lastIndexOf('.'))).toLowerCase()
-//    const key = '{$this->uploadBasePath}' + fileType + '/' + generateRandomKey() + extension
-//    return {
-//        name: file.name,
-//        extension: extension,
-//        key: key,
-//        size: file.size,
-//        mime_type: file.type,
-//        file_type: fileType
-//    }
-//}
-//GET_FILE_INFO;
+        $additinal[] = /** @lang JavaScript */ <<< GET_FILE_INFO
+function getFileInfo(file) {
+    const mimeType = (file.type.split('/', 1)[0]).toLowerCase()
+    let fileType = 'others'
+    if (mimeType === 'image') {
+        fileType = 'images'
+    } else if (mimeType === 'video') {
+        fileType = 'videos'
+    } else if (mimeType === 'audio') {
+        fileType = 'audios'
+    }
+    const extension = (file.name.substr(file.name.lastIndexOf('.'))).toLowerCase()
+    const key = '{$this->uploadBasePath}' + fileType + '/' + generateKey() + extension
+    return {
+        name: file.name,
+        extension: extension,
+        key: key,
+        size: file.size,
+        mime_type: file.type,
+        file_type: fileType
+    }
+}
+GET_FILE_INFO;
 
         $additinal[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_LOCAL
 function uploadFilesToLocal(file, insertFile) {
@@ -390,8 +401,8 @@ function uploadFilesToLocal(file, insertFile) {
     })
     
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
-    const fileInfo = getFileInfo(file, '{$this->uploadBasePath}')
-    // const chunkFileKey = (fileInfo.key).replace(/\//g, '_').replace(/\./g, '_')
+    const fileInfo = getFileInfo(file)
+    const chunkFileKey = (fileInfo.key).replace(/\//g, '_').replace(/\./g, '_')
     let chunkSize = parseInt('{$this->chunkSize}')
     const totalChunks = Math.ceil(file.size / chunkSize)
     let currentChunkIndex = 0
@@ -401,7 +412,7 @@ function uploadFilesToLocal(file, insertFile) {
     })
     formData.append('size', fileInfo.size)
     formData.append('extension', fileInfo.extension)
-    formData.append('chunk_key', fileInfo.chunk_key_prefix + '_' + currentChunkIndex)
+    formData.append('chunk_key', chunkFileKey)
     formData.append('total_chunks', totalChunks)
     //upload
     const _sendFile = (currentChunkIndex) => {
@@ -487,12 +498,12 @@ UPLOAD_FILE_TO_LOCAL;
 
         $additinal[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_QINIU
 function uploadFilesToQiniu(file, insertFile) {
-    const fileInfo = getFileInfo(file, '{$this->uploadBasePath}')
+    const fileInfo = getFileInfo(file)
     let customVars = {$this->_encodedMetaData}
-    customVars['x:file_type'] = fileInfo.file_type
+    customVars['x:file_type'] = fileInfo.fileType
     const putExtra = {
         fname: fileInfo.name,
-        mimeType: fileInfo.mime_type,
+        mimeType: fileInfo.mimeType,
         customVars: customVars,
     }
     const config = {
