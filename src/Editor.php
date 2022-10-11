@@ -11,7 +11,7 @@ use davidxu\weditor\assets\EditorAsset;
 use davidxu\weditor\assets\EditorPluginImageModalAsset;
 use davidxu\weditor\assets\EditorPluginLinkCardAsset;
 use davidxu\weditor\assets\EditorPluginUploadAttachmentAsset;
-use davidxu\weditor\assets\QiniuJsAsset;
+use davidxu\base\assets\QiniuJsAsset;
 use Qiniu\Auth;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
