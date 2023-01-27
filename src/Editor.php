@@ -3,8 +3,6 @@
 namespace davidxu\weditor;
 
 use davidxu\base\assets\QETagAsset;
-use davidxu\base\enums\QiniuUploadRegionEnum;
-use davidxu\base\enums\UploadTypeEnum;
 use davidxu\base\helpers\StringHelper;
 use davidxu\config\helpers\ArrayHelper;
 use davidxu\weditor\assets\EditorAsset;
@@ -12,13 +10,11 @@ use davidxu\weditor\assets\EditorPluginImageModalAsset;
 use davidxu\weditor\assets\EditorPluginLinkCardAsset;
 use davidxu\weditor\assets\EditorPluginUploadAttachmentAsset;
 use davidxu\base\assets\QiniuJsAsset;
-use Qiniu\Auth;
 use yii\base\InvalidConfigException;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\web\JsExpression;
 use davidxu\base\widgets\InputWidget;
-use Yii;
 
 /**
  * Editor Class
@@ -41,8 +37,6 @@ class Editor extends InputWidget
     private $_editorContainer;
     private $_optionsId;
 
-    private $_encodedClientOptions;
-
     private $_encodedEditorHoverbarKeys;
     private $_encodedEditorMenuConfig;
     private $_encodedToobarConfig;
@@ -60,8 +54,8 @@ class Editor extends InputWidget
         }
         $this->_optionsId = StringHelper::camelize($this->options['id'], '-');
         $this->_editorWrapper = $this->options['id'] . '_editor-wrapper';
-        $this->_editorContainer = $this->options['id'] . '_editor-contianer';
-        $this->_editorToolbarContainer = $this->options['id'] . '_editor-toolbar-contianer';
+        $this->_editorContainer = $this->options['id'] . '_editor-container';
+        $this->_editorToolbarContainer = $this->options['id'] . '_editor-toolbar-container';
 
         $this->registerAssets($_view);
 
@@ -208,17 +202,17 @@ const {$this->_optionsId}Editor = window.wangEditor.createEditor({
     selector: '#{$this->_editorContainer}',
     html: null,
     config: {$this->_optionsId}EditorConfig,
-    mode: 'default', // or 'simple'
+    mode: 'default' // or 'simple'
 })
 EDITOR_CREATOR_JS;
         $editor[] = new JsExpression($editorJs);
 
         // Toolbar config
         $this->_encodedToobarConfig = Json::encode($this->clientOptions['toolbarConfig'] ?? []);
-        $editorToobarConfigJs = /** @lang JavaScript */ <<< EDITOR_TOOLBAR_CONFIG_JS
+        $editorToolbarConfigJs = /** @lang JavaScript */ <<< EDITOR_TOOLBAR_CONFIG_JS
 const {$this->_optionsId}ToolbarConfig = {$this->_encodedToobarConfig}
 EDITOR_TOOLBAR_CONFIG_JS;
-        $editor[] = new JsExpression($editorToobarConfigJs);
+        $editor[] = new JsExpression($editorToolbarConfigJs);
 
         // create editor toolbar based on toolbar config
         $editorToolbarJs = /** @lang JavaScript */ <<< EDITOR_TOOLBAR_CREATOR
@@ -237,9 +231,9 @@ EDITOR_TOOLBAR_CREATOR;
 
     private function registerPreScripts($view)
     {
-        $additinal = [];
+        $additional = [];
         if ($this->secondUpload) {
-            $additinal[] = /** @lang JavaScript */ <<< GET_INFO_BY_HASH
+            $additional[] = /** @lang JavaScript */ <<< GET_INFO_BY_HASH
 function editorSecondUploadFile(file, insertFile) {
     const promise = new Promise(resolve => {
         getHash(file).then(function (hash) {
@@ -279,7 +273,7 @@ function editorSecondUploadFile(file, insertFile) {
 GET_INFO_BY_HASH;
         }
 
-        $additinal[] = /** @lang JavaScript */ <<< HANDLE_UPLOAD_DRIVE
+        $additional[] = /** @lang JavaScript */ <<< HANDLE_UPLOAD_DRIVE
 function editorHandleUploadDrive(file, insertFile) {
     if ({$this->isQiniuDrive()}) {
         editorUploadFilesToQiniu(file, insertFile)
@@ -297,10 +291,10 @@ function editorHandleUploadDrive(file, insertFile) {
 }
 HANDLE_UPLOAD_DRIVE;
 
-        $additinal[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_LOCAL
+        $additional[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_LOCAL
 function editorUploadFilesToLocal(file, insertFile) {
     sweetAlertToast.fire({
-        allowEscapeKey: false,
+        allowEscapeKey: false
     })
     
     const blobSlice = File.prototype.slice || File.prototype.mozSlice || File.prototype.webkitSlice
@@ -391,7 +385,7 @@ function editorUploadFilesToLocal(file, insertFile) {
                         position: 'top-end',
                         html: '',
                         title: response.response,
-                        icon: 'error',
+                        icon: 'error'
                     })
                 }
                 // endof all chunks uploads
@@ -402,19 +396,19 @@ function editorUploadFilesToLocal(file, insertFile) {
 }
 UPLOAD_FILE_TO_LOCAL;
 
-        $additinal[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_QINIU
+        $additional[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_QINIU
 function editorUploadFilesToQiniu(file, insertFile) {
     const fileInfo = getFileInfo(file, '{$this->uploadBasePath}')
      const config = {
         useCdnDomain: true,
-        chunkSize: Math.floor({$this->chunkSize},  1024 * 1024)
+        chunkSize: Math.floor(Number({$this->chunkSize}),  1024 * 1024)
     }
     let customVars = {$this->_encodedMetaData}
     customVars['x:file_type'] = fileInfo.file_type
     const putExtra = {
         fname: fileInfo.name,
         mimeType: fileInfo.mime_type,
-        customVars: customVars,
+        customVars: customVars
     }
     const observable = qiniu.upload(file, fileInfo.key, '{$this->getQiniuToken()}', putExtra, config)
     const observer = {
@@ -443,13 +437,13 @@ function editorUploadFilesToQiniu(file, insertFile) {
     }
     const subscription = observable.subscribe(observer)
     sweetAlertToast.fire({
-        allowEscapeKey: false,
+        allowEscapeKey: false
     })
 }
 UPLOAD_FILE_TO_QINIU;
 
-        $additinalJs = implode("\n", $additinal);
-        $view->registerJs($additinalJs);
+        $additionalJs = implode("\n", $additional);
+        $view->registerJs($additionalJs);
     }
 
     private function registerPlugins($view)

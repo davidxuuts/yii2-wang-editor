@@ -3,7 +3,6 @@
 namespace davidxu\weditor\assets;
 
 use yii\web\AssetBundle;
-use Yii;
 
 class EditorPluginUploadAttachmentAsset extends AssetBundle
 {
@@ -11,13 +10,10 @@ class EditorPluginUploadAttachmentAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-        'plugin-upload-attachment/index.js',
+        '//cdn.jsdelivr.net/npm/@wangeditor/plugin-upload-attachment/dist/index' . (YII_ENV_PROD ? '.min' : '') . '.js',
+//        'plugin-upload-attachment/index.js',
     ];
-    public function init()
-    {
 
-    }
-    
     /**
      * @var array
      */

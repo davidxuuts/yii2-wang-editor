@@ -3,7 +3,6 @@
 namespace davidxu\weditor\assets;
 
 use yii\web\AssetBundle;
-use Yii;
 
 class EditorPluginImageModalAsset extends AssetBundle
 {
@@ -11,12 +10,9 @@ class EditorPluginImageModalAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-        'plugin-image-modal/wangeditor-plugin-image-modal.umd.js',
+        '//cdn.jsdelivr.net/npm/wangeditor-plugin-image-modal/dist/wangeditor-plugin-image-modal.umd' . (YII_ENV_PROD ? '.min' : '') . '.js',
+//        'plugin-image-modal/wangeditor-plugin-image-modal.umd.js',
     ];
-    public function init()
-    {
-
-    }
     
     /**
      * @var array
