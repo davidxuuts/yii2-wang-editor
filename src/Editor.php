@@ -1,4 +1,9 @@
 <?php
+/*
+ * Copyright (c) 2023.
+ * @author David Xu <david.xu.uts@163.com>
+ * All rights reserved.
+ */
 
 namespace davidxu\weditor;
 
@@ -255,9 +260,10 @@ function editorSecondUploadFile(file, insertFile) {
                     response = (typeof response) === 'string' ? JSON.parse(response) : response
                     response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
                     if (response) {
-                        if (response.file_type === 'images') {
+                        console.log('Editor response 263', response)
+                        if (response.file_type === 'images' || response.file_type === 'image') {
                             insertFile(response.path, response.name, response.path)
-                        } else if (response.file_type === 'videos') {
+                        } else if (response.file_type === 'videos' || response.file_type === 'video') {
                             insertFile(response.path, response.poster)
                         }
                         resolve(true)
@@ -370,9 +376,10 @@ function editorUploadFilesToLocal(file, insertFile) {
                                 if (response.success || response.success === 'true') {
                                     sweetAlertToast.close()
                                     response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
-                                    if (response.file_type === 'images') {
+                                    console.log('Editor response 379', response)
+                                    if (response.file_type === 'images' || response.file_type === 'image') {
                                         insertFile(response.path, response.name, response.path)
-                                    } else if (response.file_type === 'videos') {
+                                    } else if (response.file_type === 'videos' || response.file_type === 'video') {
                                         insertFile(response.path, response.poster)
                                     }
                                 }
@@ -431,6 +438,7 @@ function editorUploadFilesToQiniu(file, insertFile) {
             response = (typeof response) === 'string' ? JSON.parse(response) : response
             if (response.success) {
                 response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
+                console.log('Editor response 441', response)
                 insertFile(response.path, response.name, response.path)
             }
         }

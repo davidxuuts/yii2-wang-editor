@@ -1,4 +1,9 @@
 <?php
+/*
+ * Copyright (c) 2023.
+ * @author David Xu <david.xu.uts@163.com>
+ * All rights reserved.
+ */
 
 namespace davidxu\weditor\assets;
 
@@ -10,8 +15,8 @@ class EditorPluginUploadAttachmentAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-        '//cdn.jsdelivr.net/npm/@wangeditor/plugin-upload-attachment/dist/index' . (YII_ENV_PROD ? '.min' : '') . '.js',
-//        'plugin-upload-attachment/index.js',
+//        '//cdn.jsdelivr.net/npm/@wangeditor/plugin-upload-attachment/dist/index' . (YII_ENV_PROD ? '.min' : '') . '.js',
+        'plugin-upload-attachment/index.js',
     ];
 
     /**
