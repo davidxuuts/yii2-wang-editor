@@ -33,23 +33,19 @@ class Editor extends InputWidget
         'menuConfig' => [],
     ];
 
-    public $enablePluginUploadAttachment = false;
-    public $enablePluginLinkCard = false;
-    public $enablePluginImageModal = false;
+    public bool $enablePluginUploadAttachment = false;
+    public bool $enablePluginLinkCard = false;
+    public bool $enablePluginImageModal = false;
 
-    private $_editorWrapper;
-    private $_editorToolbarContainer;
-    private $_editorContainer;
-    private $_optionsId;
-
-    private $_encodedEditorHoverbarKeys;
-    private $_encodedEditorMenuConfig;
-    private $_encodedToobarConfig;
+    private string $_editorWrapper = '';
+    private string $_editorToolbarContainer = '';
+    private string $_editorContainer = '';
+    private string $_optionsId = '';
 
     /**
      * @throws InvalidConfigException
      */
-    public function init()
+    public function init(): void
     {
         $_view = $this->getView();
         parent::init();
@@ -64,12 +60,12 @@ class Editor extends InputWidget
 
         $this->registerAssets($_view);
 
-//        $this->_encodedMetaData = Json::encode($this->metaData);
         $customUploadJs = /** @lang JavaScript */ <<< CUSTOM_UPLOAD_JS
 ({
     async customUpload(file, insertFile) {
-        if ({$this->secondUpload} || {$this->secondUpload} === 'true') {
+        if ($this->secondUpload) {
             editorSecondUploadFile(file, insertFile).then(res => {
+                console.log('res', res, file, insertFile)
                 if (!res) {
                     editorHandleUploadDrive(file, insertFile)
                 }
@@ -137,10 +133,10 @@ CUSTOM_UPLOAD_JS;
         return implode("\n", $html);
     }
 
-    private function registerAssets($_view)
+    private function registerAssets($_view): void
     {
         EditorAsset::register($_view);
-        if ((bool)$this->isQiniuDrive()) {
+        if ((bool)($this->isQiniuDrive())) {
             QiniuJsAsset::register($_view);
         }
         if ($this->secondUpload) {
@@ -149,12 +145,12 @@ CUSTOM_UPLOAD_JS;
         $this->registerPlugins($_view);
     }
 
-    private function getFieldId()
+    private function getFieldId(): string
     {
         return $this->hasModel() ? Html::getInputId($this->model, $this->attribute) : StringHelper::getInputId($this->name);
     }
 
-    private function registerScripts($_view)
+    private function registerScripts($_view): void
     {
         // common config before editor initialized
         $this->registerPreScripts($_view);
@@ -181,14 +177,14 @@ CUSTOM_UPLOAD_JS;
             ]);
         }
 
-        $this->_encodedEditorHoverbarKeys = Json::encode($this->clientOptions['hoverbarKeys'] ?? []);
-        $this->_encodedEditorMenuConfig = Json::encode($this->clientOptions['menuConfig'] ?? []);
+        $_encodedEditorHoverbarKeys = Json::encode($this->clientOptions['hoverbarKeys'] ?? []);
+        $_encodedEditorMenuConfig = Json::encode($this->clientOptions['menuConfig'] ?? []);
 
         $editorConfigJs = /** @lang JavaScript */ <<< EDITOR_CONFIG_JS
 const {$this->_optionsId}EditorConfig = {
     // placeholder: 'Type here...',
-    MENU_CONF: {$this->_encodedEditorMenuConfig},
-    hoverbarKeys: {$this->_encodedEditorHoverbarKeys},
+    MENU_CONF: {$_encodedEditorMenuConfig},
+    hoverbarKeys: {$_encodedEditorHoverbarKeys},
     onCreated(editor) {
         editor.clear()
         editor.dangerouslyInsertHtml($('#{$this->options["id"]}').val())
@@ -213,9 +209,9 @@ EDITOR_CREATOR_JS;
         $editor[] = new JsExpression($editorJs);
 
         // Toolbar config
-        $this->_encodedToobarConfig = Json::encode($this->clientOptions['toolbarConfig'] ?? []);
+        $_encodedToolbarConfig = Json::encode($this->clientOptions['toolbarConfig'] ?? []);
         $editorToolbarConfigJs = /** @lang JavaScript */ <<< EDITOR_TOOLBAR_CONFIG_JS
-const {$this->_optionsId}ToolbarConfig = {$this->_encodedToobarConfig}
+const {$this->_optionsId}ToolbarConfig = {$_encodedToolbarConfig}
 EDITOR_TOOLBAR_CONFIG_JS;
         $editor[] = new JsExpression($editorToolbarConfigJs);
 
@@ -234,7 +230,7 @@ EDITOR_TOOLBAR_CREATOR;
         $_view->registerJs($editorJs);
     }
 
-    private function registerPreScripts($view)
+    private function registerPreScripts($view): void
     {
         $additional = [];
         if ($this->secondUpload) {
@@ -242,29 +238,33 @@ EDITOR_TOOLBAR_CREATOR;
 function editorSecondUploadFile(file, insertFile) {
     const promise = new Promise(resolve => {
         getHash(file).then(function (hash) {
+            console.log('hash', hash)
             let formData = new FormData()
-            $.each({$this->_encodedMetaData}, function (key, value) {
-                formData.append(key,value)
+            $.each($this->_encodedMetaData, function (key, value) {
+                formData.append(key, value)
             })
             formData.delete('file_field')
             formData.delete('store_in_db')
+            // formData.hash = hash
             formData.append('hash', hash)
             $.ajax({
-                url: '{$this->getHashUrl}',
+                url: `{$this->getHashUrl}`,
                 data: formData,
                 type: 'POST',
                 dataType: 'json',
                 contentType:false,
                 processData:false,
                 success: function (response) {
-                    response = (typeof response) === 'string' ? JSON.parse(response) : response
-                    response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
-                    if (response) {
-                        console.log('Editor response 263', response)
-                        if (response.file_type === 'images' || response.file_type === 'image') {
-                            insertFile(response.path, response.name, response.path)
-                        } else if (response.file_type === 'videos' || response.file_type === 'video') {
-                            insertFile(response.path, response.poster)
+                    console.log('gethash', response)
+                    const { success, data } = response
+                    // response = (typeof response) === 'string' ? JSON.parse(response) : response
+                    // const data = (typeof response.data) === 'string' ? JSON.parse(response.data) : response.data
+                    if (success && data.length > 0) {
+                        const { file_type, path, name, poster } = data;
+                        if (file_type === 'images' || file_type === 'image') {
+                            insertFile(path, name, path)
+                        } else if (file_type === 'videos' || file_type === 'video') {
+                            insertFile(path, poster)
                         }
                         resolve(true)
                     } else {
@@ -375,12 +375,12 @@ function editorUploadFilesToLocal(file, insertFile) {
                                 response = (typeof response) === 'string' ? JSON.parse(response) : response
                                 if (response.success || response.success === 'true') {
                                     sweetAlertToast.close()
-                                    response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
-                                    console.log('Editor response 379', response)
-                                    if (response.file_type === 'images' || response.file_type === 'image') {
-                                        insertFile(response.path, response.name, response.path)
-                                    } else if (response.file_type === 'videos' || response.file_type === 'video') {
-                                        insertFile(response.path, response.poster)
+                                    const data = (typeof response.data) === 'string' ? JSON.parse(response.data) : response.data
+                                    const { file_type, path, name, poster } = data
+                                    if (file_type === 'images' || file_type === 'image') {
+                                        insertFile(path, name, path)
+                                    } else if (file_type === 'videos' || file_type === 'video') {
+                                        insertFile(path, poster)
                                     }
                                 }
                             }
@@ -435,11 +435,13 @@ function editorUploadFilesToQiniu(file, insertFile) {
         }, 
         complete(response) {
             sweetAlertToast.close()
+            console.log('qiniuupload', response)
             response = (typeof response) === 'string' ? JSON.parse(response) : response
             if (response.success) {
-                response = (typeof response.response) === 'string' ? JSON.parse(response.response) : response.response
-                console.log('Editor response 441', response)
-                insertFile(response.path, response.name, response.path)
+                const data = (typeof response.data) === 'string' ? JSON.parse(response.data) : response.data
+                console.log('Editor response 441', data)
+                const { path, name } = data
+                insertFile(path, name, path)
             }
         }
     }
@@ -454,7 +456,7 @@ UPLOAD_FILE_TO_QINIU;
         $view->registerJs($additionalJs);
     }
 
-    private function registerPlugins($view)
+    private function registerPlugins($view): void
     {
         if ($this->enablePluginUploadAttachment) {
             EditorPluginUploadAttachmentAsset::register($view);
