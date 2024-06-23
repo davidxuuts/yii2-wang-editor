@@ -7,24 +7,24 @@
 
 namespace davidxu\weditor;
 
-use davidxu\adminlte4\assets\QETagAsset;
-use davidxu\adminlte4\helpers\StringHelper;
+use davidxu\base\assets\QETagAsset;
+use davidxu\base\helpers\StringHelper;
 use davidxu\weditor\assets\EditorAsset;
 use davidxu\weditor\assets\EditorPluginImageModalAsset;
 use davidxu\weditor\assets\EditorPluginLinkCardAsset;
 use davidxu\weditor\assets\EditorPluginUploadAttachmentAsset;
-use davidxu\adminlte4\assets\QiniuJsAsset;
+use davidxu\base\assets\QiniuJsAsset;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
 use yii\web\JsExpression;
-use davidxu\adminlte4\widgets\InputWidget;
+use davidxu\base\widgets\InputWidget;
 
 /**
- * Editor Class
+ * EditorBs4 Class
  */
-class Editor extends InputWidget
+class EditorBs4 extends InputWidget
 {
     /** @var array */
     public $clientOptions = [
@@ -136,7 +136,7 @@ CUSTOM_UPLOAD_JS;
     private function registerAssets($_view): void
     {
         EditorAsset::register($_view);
-        if ($this->isQiniuDrive()) {
+        if ((bool)($this->isQiniuDrive())) {
             QiniuJsAsset::register($_view);
         }
         if ($this->secondUpload) {
@@ -187,8 +187,7 @@ const {$this->_optionsId}EditorConfig = {
     hoverbarKeys: {$_encodedEditorHoverbarKeys},
     onCreated(editor) {
         editor.clear()
-        // editor.dangerouslyInsertHtml($('#{$this->options["id"]}').val())
-        editor.setHtml($('#{$this->options["id"]}').val())
+        editor.dangerouslyInsertHtml($('#{$this->options["id"]}').val())
     },
     onChange(editor) {
         const html = editor.getHtml()
@@ -235,8 +234,7 @@ EDITOR_TOOLBAR_CREATOR;
     {
         $additional = [];
         if ($this->secondUpload) {
-            $additional[] = /** @lang JavaScript */
-                <<< GET_INFO_BY_HASH
+            $additional[] = /** @lang JavaScript */ <<< GET_INFO_BY_HASH
 function editorSecondUploadFile(file, insertFile) {
     const promise = new Promise(resolve => {
         getHash(file).then(function (hash) {
@@ -281,8 +279,7 @@ function editorSecondUploadFile(file, insertFile) {
 GET_INFO_BY_HASH;
         }
 
-        $additional[] = /** @lang JavaScript */
-            <<< HANDLE_UPLOAD_DRIVE
+        $additional[] = /** @lang JavaScript */ <<< HANDLE_UPLOAD_DRIVE
 function editorHandleUploadDrive(file, insertFile) {
     if ({$this->isQiniuDrive()}) {
         editorUploadFilesToQiniu(file, insertFile)
@@ -300,9 +297,7 @@ function editorHandleUploadDrive(file, insertFile) {
 }
 HANDLE_UPLOAD_DRIVE;
 
-        if ($this->isLocalDrive()) {
-            $additional[] = /** @lang JavaScript */
-            <<< UPLOAD_FILE_TO_LOCAL
+        $additional[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_LOCAL
 function editorUploadFilesToLocal(file, insertFile) {
     sweetAlertToast.fire({
         allowEscapeKey: false
@@ -407,11 +402,8 @@ function editorUploadFilesToLocal(file, insertFile) {
     _sendFile(currentChunkIndex)
 }
 UPLOAD_FILE_TO_LOCAL;
-    }
 
-        if ($this->isQiniuDrive()) {
-            $additional[] = /** @lang JavaScript */
-                <<< UPLOAD_FILE_TO_QINIU
+        $additional[] = /** @lang JavaScript */ <<< UPLOAD_FILE_TO_QINIU
 function editorUploadFilesToQiniu(file, insertFile) {
     const fileInfo = getFileInfo(file, '{$this->uploadBasePath}')
      const config = {
@@ -459,7 +451,6 @@ function editorUploadFilesToQiniu(file, insertFile) {
     })
 }
 UPLOAD_FILE_TO_QINIU;
-        }
 
         $additionalJs = implode("\n", $additional);
         $view->registerJs($additionalJs);

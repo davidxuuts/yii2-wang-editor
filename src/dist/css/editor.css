@@ -1,10 +1,9 @@
-/*
+@charset "UTF-8";
+/*!
  * Copyright (c) 2023.
  * @author David Xu <david.xu.uts@163.com>
  * All rights reserved.
  */
-
-@charset "UTF-8";
 .editor—wrapper {
   border: 1px solid #ccc;
   z-index: 1000;

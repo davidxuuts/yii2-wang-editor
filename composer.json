@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=8.0",
-    "davidxu/yii2-base": "^1.0.5"
+    "npm-asset/wangeditor--editor": "^5.1"
   },
   "suggest": {
     "npm-asset/qiniu-js": "^3.4"

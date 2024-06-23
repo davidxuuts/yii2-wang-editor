@@ -7,8 +7,8 @@
 
 namespace davidxu\weditor\assets;
 
-use davidxu\base\assets\BaseAppAsset;
 use yii\web\AssetBundle;
+use yii\web\YiiAsset;
 
 class EditorAsset extends AssetBundle
 {
@@ -27,6 +27,6 @@ class EditorAsset extends AssetBundle
      * @var array
      */
     public $depends = [
-        BaseAppAsset::class,
+        YiiAsset::class,
     ];
 }
