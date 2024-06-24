@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=8.0",
-    "davidxu/adminlte4": "^1.0.0"
+    "davidxu/yii2-adminlte4": "^1.0.0"
   },
   "suggest": {
     "npm-asset/qiniu-js": "^3.4"
