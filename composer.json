@@ -13,7 +13,7 @@
   ],
   "require": {
     "php": ">=8.0",
-    "npm-asset/wangeditor--editor": "^5.1"
+    "davidxu/adminlte4": "^1.0.0"
   },
   "suggest": {
     "npm-asset/qiniu-js": "^3.4"
