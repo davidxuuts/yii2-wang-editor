@@ -15,7 +15,6 @@ class EditorPluginUploadAttachmentAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-//        '//cdn.jsdelivr.net/npm/@wangeditor/plugin-upload-attachment/dist/index' . (YII_ENV_PROD ? '.min' : '') . '.js',
         'plugin-upload-attachment/index.js',
     ];
 

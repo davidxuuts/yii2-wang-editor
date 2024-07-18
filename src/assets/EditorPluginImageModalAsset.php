@@ -15,7 +15,6 @@ class EditorPluginImageModalAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-//        '//cdn.jsdelivr.net/npm/wangeditor-plugin-image-modal/dist/wangeditor-plugin-image-modal.umd' . (YII_ENV_PROD ? '.min' : '') . '.js',
         'plugin-image-modal/wangeditor-plugin-image-modal.umd.js',
     ];
     

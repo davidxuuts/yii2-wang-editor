@@ -15,7 +15,6 @@ class EditorPluginLinkCardAsset extends AssetBundle
     public $css = [
     ];
     public $js = [
-//        '//cdn.jsdelivr.net/npm/@wangeditor/plugin-link-card/dist/index' . (YII_ENV_PROD ? '.min' : '') . '.js',
         'plugin-link-card/index.js',
     ];
 
